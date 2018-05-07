@@ -33,26 +33,18 @@ app.startQuestion = (closeConnectionCallback) => {
 
 app.completeSentence = (continueCallback) => {
 
-  function validateName(name){
-        return name !== '';
-    }
-
   inquirer.prompt([{
-   type: 'input',
-   message: 'What is your name?',
-   name: 'name',
-   //validate: validateName
- }, {
-   type: 'input',
-   message: 'What is your age?',
-   name: 'age',
-   //validate: validateName
-
- }]).then((res) => {
-    console.log('Your name is: ' + res.name + ' and your age is: ' + res.age);
-    continueCallback();
-  })
-
+    type: 'input',
+    message: 'What is your name?',
+    name: 'name'
+  }, {
+    type: 'input',
+    message: 'What is your age?',
+    name: 'age'
+  }]).then((res) => {
+      console.log('Your name is: ' + res.name + '. Your age is: ' + res.age + '.');
+      continueCallback();
+    })
 
 }
 

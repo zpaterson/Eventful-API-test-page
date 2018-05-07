@@ -2,7 +2,7 @@
 var inquirer = require('inquirer');
 const mysql = require("mysql");
 const mySqlKey = require('./keys').mySql;
-const app = require('./app')
+const app = require('./app');
 
 //create MySQL connection
 const connection = mysql.createConnection({
