@@ -1,4 +1,5 @@
 //require packages
+var inquirer = require('inquirer');
 const mysql = require("mysql");
 const mySqlKey = require('./keys').mySql;
 const app = require('./app')
@@ -25,5 +26,4 @@ const mySqlConnect = () => {
 
 // *Uncomment below line once you have mySQL setup
 
-// mySqlConnect();
-
+mySqlConnect();
