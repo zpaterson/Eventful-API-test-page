@@ -36,7 +36,6 @@ let username;
 let useremail;
 
 app.completeSentence = (continueCallback) => {
-
   inquirer.prompt([{
     type: 'input',
     message: 'What is your name?',
@@ -53,7 +52,6 @@ app.completeSentence = (continueCallback) => {
     }).catch((err) => {
       console.log(err);
     })
-
 }
 
 app.createNewUser = (continueCallback) => {
@@ -72,7 +70,7 @@ app.createNewUser = (continueCallback) => {
       console.log('Your name is: ' + username + '. Your email is: ' + useremail + '.');
 
       const newuser = {name: username, email: useremail};
-      
+
       connection.query('INSERT INTO users SET ?', newuser, function (err, result, field) {
         if (err) throw err;
         console.log("1 user " + username + " inserted into mySQL database.");
