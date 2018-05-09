@@ -1,6 +1,6 @@
 const inquirer = require('inquirer');
 const connection = require('./connection');
-const eventfulSearch = require('./eventfulAPI');
+const eventfulSearch = require('./eventfulAPI').getEvent;
 
 const app = {};
 app.startQuestion = (closeConnectionCallback) => {
@@ -89,31 +89,38 @@ app.searchEventful = (continueCallback) => {
     type: 'input',
     message: 'What kind of event do you want to search?',
     name: 'keyword'
-  }, {
-    type: 'list',
-    message: 'Do you want to save these events?',
-    choices: [
-      'Yes',
-      'No'
-    ],
-    name: 'save'
   }]).then((res) => {
     console.log("You are searching for " + res.keyword + ".");
 
-    const newEvents = eventfulSearch(res.keyword);
-
-    console.log(newEvents);
-    
-    if (res.save === 'Yes') {
-      for (let i = 0; i < newEvents.length; i++) {
-        connection.query('INSERT INTO events SET ?', newEvents[i], function (err, result, field) {
-          if (err) throw err;
-        });
-      }
-      console.log("Events inserted into mySQL database.");
-    }
-    continueCallback();
-  })
+    eventfulSearch(res.keyword, (eventList) => {
+      inquirer.prompt({
+          type: 'list',
+          message: 'Do you want to save these events?',
+          choices: [
+            'Yes',
+            'No'
+          ],
+          name: 'save'
+      }).then((res) => {
+        if (res.save === 'Yes') {
+          //for (let i = 0; i < eventList.length; i++) {
+            connection.query('INSERT INTO events SET ?', eventList, function (err, result, field) {
+              if (err) throw err;
+            });
+          //}
+          console.log("Events inserted into mySQL database.");
+          continueCallback();
+        }
+        else {
+          app.searchEventful(continueCallback);
+        }
+      }).catch(err => {
+       console.log(err);
+       })
+   });
+ }).catch(err => {
+   console.log(err);
+ })
 }
 
 app.matchUserWithEvent = (continueCallback) => {
