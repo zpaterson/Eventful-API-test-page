@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const connection = require('./connection');
+const eventSearch = require('./eventfulAPI');
 
 const app = {};
 app.startQuestion = (closeConnectionCallback) => {
@@ -82,11 +83,39 @@ app.createNewUser = (continueCallback) => {
 }
 
 app.searchEventful = (continueCallback) => {
-  //YOUR WORK HERE
+  inquirer.prompt({
+    type: 'input',
+    message: 'What kind of event do you want to search?',
+    name: 'keyword'
+  }).then((res) => {
+    console.log("You are searching for " + res.keyword + ".");
 
-  console.log('Please write code for this function');
-  //End of your work
-  continueCallback();
+    eventSearch(res.keyword, (newEvent) => {
+      inquirer.prompt({
+        type: 'confirm',
+        message: 'Do you want to save this event? Y/N',
+        'default': false,
+        name: 'saveToDB'
+      }).then((res) => {
+          if (res.saveToDB === true) {
+            connection.query('INSERT INTO events SET ?', newEvent, function (err, result, field) {
+              if (err) throw err;
+            });
+            console.log("1 Event inserted into mySQL database.");
+            continueCallback();
+          }
+          else {
+            app.searchEventful(continueCallback);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    });
+  })
+  .catch(err => {
+    console.log(err);
+  })
 }
 
 app.matchUserWithEvent = (continueCallback) => {
