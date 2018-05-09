@@ -24,48 +24,38 @@ const client = new eventful.Client(eventfulKey);
 // });
 
 //export a custom function that searches via Eventful API, displays the results AND stores some of the data into MySQL
-//created an anonymous object the has a key called getEvent which has a value of an anonymous function
-module.exports = {getEvent: (keyword, insertData) => {
+function eventSearch(keyword, callback) {
   const optionObj = {
     keywords: keyword,
     location: "San Francisco",
     date: "Next Week"
   };
 
-  //let eventList = [];
-  let resultEvents;
-
-
   client.searchEvents(optionObj, (err, data) => {
     if (err) {
       return console.error(err);
     }
-    resultEvents = data.search.events.event;
 
-    //console.log('Received ' + data.search.total_items + ' events');
-    console.log('Event listing: ');
+    let resultEvents = data.search.events.event;
 
-    //for ( let i = 0 ; i < resultEvents.length; i++){
-      let newTitle = resultEvents[0].title;
-      let newTime = resultEvents[0].start_time;
-      let newVenue = resultEvents[0].venue_name;
-      let newAddress = resultEvents[0].venue_address;
+    console.log('Received ' + data.search.total_items + ' events');
+    console.log('The first event: ');
 
-      console.log("===========================================================")
-      console.log('title: ', resultEvents[0].title);
-      console.log('time: ', resultEvents[0].start_time);
-      console.log('venue: ',resultEvents[0].venue_name);
-      console.log('address: ', resultEvents[0].venue_address);
+    let newTitle = resultEvents[0].title;
+    let newTime = resultEvents[0].start_time;
+    let newVenue = resultEvents[0].venue_name;
+    let newAddress = resultEvents[0].venue_address;
 
-      //console.log(eventList);
+    console.log("===========================================================")
+    console.log('title: ', newTitle);
+    console.log('time: ', newTime);
+    console.log('venue: ', newVenue);
+    console.log('address: ', newAddress);
 
-      let newEvent = {title: newTitle, time: newTime, venue: newVenue, address: newAddress};
-      //return eventList;
-      // console.log(eventList);
-      // console.log(keyword);
-    //}
-    //the insertData callback function triggers the
-    insertData(newEvent);
+    let newEvent = {title: newTitle, time: newTime, venue: newVenue, address: newAddress, keyword: keyword};
+
+    callback(newEvent);
   });
- }
 }
+
+module.exports = eventSearch;

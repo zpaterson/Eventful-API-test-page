@@ -1,6 +1,6 @@
 const inquirer = require('inquirer');
 const connection = require('./connection');
-const eventfulSearch = require('./eventfulAPI').getEvent;
+const eventSearch = require('./eventfulAPI');
 
 const app = {};
 app.startQuestion = (closeConnectionCallback) => {
@@ -85,42 +85,39 @@ app.createNewUser = (continueCallback) => {
 }
 
 app.searchEventful = (continueCallback) => {
-  inquirer.prompt([{
+  inquirer.prompt({
     type: 'input',
     message: 'What kind of event do you want to search?',
     name: 'keyword'
-  }]).then((res) => {
+  }).then((res) => {
     console.log("You are searching for " + res.keyword + ".");
 
-    eventfulSearch(res.keyword, (eventList) => {
+    eventSearch(res.keyword, (newEvent) => {
       inquirer.prompt({
-          type: 'list',
-          message: 'Do you want to save these events?',
-          choices: [
-            'Yes',
-            'No'
-          ],
-          name: 'save'
+        type: 'confirm',
+        message: 'Do you want to save this event? Y/N',
+        'default': false,
+        name: 'saveToDB'
       }).then((res) => {
-        if (res.save === 'Yes') {
-          //for (let i = 0; i < eventList.length; i++) {
-            connection.query('INSERT INTO events SET ?', eventList, function (err, result, field) {
+          if (res.saveToDB === true) {
+            connection.query('INSERT INTO events SET ?', newEvent, function (err, result, field) {
               if (err) throw err;
             });
-          //}
-          console.log("Events inserted into mySQL database.");
-          continueCallback();
+            console.log("1 Event inserted into mySQL database.");
+            continueCallback();
+          }
+          else {
+            app.searchEventful(continueCallback);
         }
-        else {
-          app.searchEventful(continueCallback);
-        }
-      }).catch(err => {
-       console.log(err);
-       })
-   });
- }).catch(err => {
-   console.log(err);
- })
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    });
+  })
+  .catch(err => {
+    console.log(err);
+  })
 }
 
 app.matchUserWithEvent = (continueCallback) => {
